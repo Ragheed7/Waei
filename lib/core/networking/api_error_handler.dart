@@ -39,67 +39,55 @@ class ResponseCode {
 }
 
 class ResponseMessage {
-  static const String NO_CONTENT = "No Content";
-  static const String BAD_REQUEST = "Bad Request";
-  static const String UNAUTHORIZED = "Unauthorized";
-  static const String FORBIDDEN = "Forbidden";
-  static const String INTERNAL_SERVER_ERROR = "Internal Server Error";
-  static const String NOT_FOUND = "Not Found";
-  
-  static const String CONNECT_TIMEOUT = "Connection Timeout";
-  static const String CANCEL = "Request Cancelled";
-  static const String RECEIVE_TIMEOUT = "Receive Timeout";
-  static const String SEND_TIMEOUT = "Send Timeout";
-  static const String CACHE_ERROR = "Cache Error";
-  static const String NO_INTERNET_CONNECTION = "No Internet Connection";
-  static const String DEFAULT = "Something went wrong";
+  static const String NO_CONTENT = "No Content available at the moment.";
+  static const String BAD_REQUEST = "The request was invalid. Please check your input.";
+  static const String UNAUTHORIZED = "You are not authorized to access this resource. Please log in again.";
+  static const String FORBIDDEN = "You do not have permission to perform this action.";
+  static const String INTERNAL_SERVER_ERROR = "There was an issue on the server. Please try again later.";
+  static const String NOT_FOUND = "The resource you are looking for was not found.";
+  static const String CONNECT_TIMEOUT = "Connection timed out. Please try again later.";
+  static const String CANCEL = "Request was cancelled.";
+  static const String RECEIVE_TIMEOUT = "The server took too long to respond. Please try again.";
+  static const String SEND_TIMEOUT = "The request took too long to send. Please try again.";
+  static const String CACHE_ERROR = "There was an issue with the cached data.";
+  static const String NO_INTERNET_CONNECTION = "No internet connection. Please check your network.";
+  static const String DEFAULT = "Something went wrong. Please try again later.";
 }
+
 
 extension DataSourceExtension on DataSource {
   ApiErrorModel getFailure() {
     switch (this) {
       case DataSource.NO_CONTENT:
-        return ApiErrorModel(
-            message: ResponseMessage.NO_CONTENT, isSuccess: false);
+        return ApiErrorModel(message: ResponseMessage.NO_CONTENT, isSuccess: false);
       case DataSource.BAD_REQUEST:
-        return ApiErrorModel(
-            message: ResponseMessage.BAD_REQUEST, isSuccess: false);
+        return ApiErrorModel(message: ResponseMessage.BAD_REQUEST, isSuccess: false);
       case DataSource.UNAUTHORIZED:
-        return ApiErrorModel(
-            message: ResponseMessage.UNAUTHORIZED, isSuccess: false);
+        return ApiErrorModel(message: ResponseMessage.UNAUTHORIZED, isSuccess: false);
       case DataSource.FORBIDDEN:
-        return ApiErrorModel(
-            message: ResponseMessage.FORBIDDEN, isSuccess: false);
+        return ApiErrorModel(message: ResponseMessage.FORBIDDEN, isSuccess: false);
       case DataSource.NOT_FOUND:
-        return ApiErrorModel(
-            message: ResponseMessage.NOT_FOUND, isSuccess: false);
+        return ApiErrorModel(message: ResponseMessage.NOT_FOUND, isSuccess: false);
       case DataSource.INTERNAL_SERVER_ERROR:
-        return ApiErrorModel(
-            message: ResponseMessage.INTERNAL_SERVER_ERROR, isSuccess: false);
+        return ApiErrorModel(message: ResponseMessage.INTERNAL_SERVER_ERROR, isSuccess: false);
       case DataSource.CONNECT_TIMEOUT:
-        return ApiErrorModel(
-            message: ResponseMessage.CONNECT_TIMEOUT, isSuccess: false);
+        return ApiErrorModel(message: ResponseMessage.CONNECT_TIMEOUT, isSuccess: false);
       case DataSource.CANCEL:
-        return ApiErrorModel(
-            message: ResponseMessage.CANCEL, isSuccess: false);
+        return ApiErrorModel(message: ResponseMessage.CANCEL, isSuccess: false);
       case DataSource.RECEIVE_TIMEOUT:
-        return ApiErrorModel(
-            message: ResponseMessage.RECEIVE_TIMEOUT, isSuccess: false);
+        return ApiErrorModel(message: ResponseMessage.RECEIVE_TIMEOUT, isSuccess: false);
       case DataSource.SEND_TIMEOUT:
-        return ApiErrorModel(
-            message: ResponseMessage.SEND_TIMEOUT, isSuccess: false);
+        return ApiErrorModel(message: ResponseMessage.SEND_TIMEOUT, isSuccess: false);
       case DataSource.CACHE_ERROR:
-        return ApiErrorModel(
-            message: ResponseMessage.CACHE_ERROR, isSuccess: false);
+        return ApiErrorModel(message: ResponseMessage.CACHE_ERROR, isSuccess: false);
       case DataSource.NO_INTERNET_CONNECTION:
-        return ApiErrorModel(
-            message: ResponseMessage.NO_INTERNET_CONNECTION, isSuccess: false);
+        return ApiErrorModel(message: ResponseMessage.NO_INTERNET_CONNECTION, isSuccess: false);
       case DataSource.DEFAULT:
-        return ApiErrorModel(
-            message: ResponseMessage.DEFAULT, isSuccess: false);
+        return ApiErrorModel(message: ResponseMessage.DEFAULT, isSuccess: false);
     }
   }
 }
+
 
 class ErrorHandler implements Exception {
   late ApiErrorModel apiErrorModel;
@@ -109,7 +97,11 @@ class ErrorHandler implements Exception {
       apiErrorModel = _handleError(error);
     } else {
       apiErrorModel = DataSource.DEFAULT.getFailure();
+      print("Unhandled error type: ${error.runtimeType}");
+      print("Error details: $error"); // Log the error details
     }
+    // Access the message correctly from the instance
+    print("ErrorHandler: ${apiErrorModel.message}");
   }
 
   ApiErrorModel _handleError(DioException error) {
@@ -123,8 +115,17 @@ class ErrorHandler implements Exception {
       case DioExceptionType.badResponse:
         if (error.response != null &&
             error.response?.statusCode != null &&
-            error.response?.statusMessage != null) {
-          return ApiErrorModel.fromJson(error.response!.data);
+            error.response?.statusMessage != null &&
+            error.response?.data != null &&
+            error.response!.data is Map<String, dynamic>) {
+          try {
+            // Attempt to parse ApiErrorModel
+            return ApiErrorModel.fromJson(error.response!.data);
+          } catch (e, stacktrace) {
+            print("Error parsing ApiErrorModel: $e");
+            print("Stacktrace: $stacktrace");
+            return DataSource.DEFAULT.getFailure();
+          }
         } else {
           return DataSource.DEFAULT.getFailure();
         }
@@ -139,6 +140,46 @@ class ErrorHandler implements Exception {
     }
   }
 }
+
+
+
+  ApiErrorModel _handleError(DioException error) {
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+        return DataSource.CONNECT_TIMEOUT.getFailure();
+      case DioExceptionType.sendTimeout:
+        return DataSource.SEND_TIMEOUT.getFailure();
+      case DioExceptionType.receiveTimeout:
+        return DataSource.RECEIVE_TIMEOUT.getFailure();
+      case DioExceptionType.badResponse:
+        if (error.response != null &&
+            error.response?.statusCode != null &&
+            error.response?.statusMessage != null &&
+            error.response?.data != null &&
+            error.response!.data is Map<String, dynamic>) {
+          try {
+            // Attempt to parse ApiErrorModel
+            return ApiErrorModel.fromJson(error.response!.data);
+          } catch (e, stacktrace) {
+            print("Error parsing ApiErrorModel: $e");
+            print("Stacktrace: $stacktrace");
+            return DataSource.DEFAULT.getFailure();
+          }
+        } else {
+          return DataSource.DEFAULT.getFailure();
+        }
+      case DioExceptionType.cancel:
+        return DataSource.CANCEL.getFailure();
+      case DioExceptionType.unknown:
+        return DataSource.DEFAULT.getFailure();
+      case DioExceptionType.connectionError:
+        return DataSource.NO_INTERNET_CONNECTION.getFailure();
+      case DioExceptionType.badCertificate:
+        return DataSource.DEFAULT.getFailure();
+    }
+  }
+
+
 
 
 

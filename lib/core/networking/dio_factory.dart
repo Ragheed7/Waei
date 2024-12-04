@@ -1,51 +1,54 @@
 import 'package:dio/dio.dart';
-import 'package:waie/core/helpers/constants.dart';
-import 'package:waie/core/helpers/shared_prefs_helper.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:waie/core/networking/api_constants.dart';
+import 'package:waie/core/networking/api_service.dart';
+import 'package:waie/features/auth/interceptor/auth_interceptor.dart';
+import 'package:waie/features/auth/interceptor/token_interceptor.dart';
+import 'package:waie/features/auth/repo/auth_repo.dart';
 
 class DioFactory {
-  /// private constructor as I don't want to allow creating an instance of this class
+  /// Private constructor to prevent instantiation
   DioFactory._();
 
-  static Dio? dio;
+  static Dio? _dio;
 
   static Future<Dio> getDio() async {
-    Duration timeOut = const Duration(seconds: 30);
+    Duration timeOut = const Duration(seconds: 60);
 
-    if (dio == null) {
-      dio = Dio();
-      dio!
-        ..options.connectTimeout = timeOut
-        ..options.receiveTimeout = timeOut;
-      addDioHeaders();
-      addDioInterceptor();
-      return dio!;
-    } else {
-      return dio!;
+    if (_dio == null) {
+      _dio = Dio();
+
+      // Set base options
+      _dio!.options.baseUrl = ApiConsts.baseUrl;
+      _dio!.options.connectTimeout = timeOut; // 30 seconds
+      _dio!.options.receiveTimeout = timeOut; // 30 seconds
+
+      // Add logging interceptor
+      _dio!.interceptors.add(
+        PrettyDioLogger(
+          requestHeader: true,
+          requestBody: true,
+          responseBody: true,
+          responseHeader: false,
+        ),
+      );
+
+    // TokenInterceptor
+      _dio!.interceptors.add(TokenInterceptor());
+
+      // AuthInterceptor (provide AuthRepository)
+      final apiService = ApiService(_dio!);
+      final authRepository = AuthRepository(apiService);
+      _dio!.interceptors.add(AuthInterceptor(authRepository));
     }
+
+    return _dio!;
   }
 
-  static void addDioHeaders() async {
-    dio?.options.headers = {
-      'Accept': 'application/json',
-      'Authorization':
-          'Bearer ${await SharedPrefHelper.getSecuredString(SharedPrefKeys.userToken)}',
-    };
-  }
-
-  static void setTokenIntoHeaderAfterLogin(String token) {
-    dio?.options.headers = {
-      'Authorization': 'Bearer $token',
-    };
-  }
-
-  static void addDioInterceptor() {
-    dio?.interceptors.add(
-      PrettyDioLogger(
-        requestBody: true,
-        requestHeader: true,
-        responseHeader: true,
-      ),
-    );
-  }
+  /// Sets the Authorization header with the given [token].
+  // static Future<void> setAuthorizationHeader(String token) async {
+  //   if (_dio != null) {
+  //     _dio!.options.headers['Authorization'] = 'Bearer $token';
+  //   }
+  // }
 }

@@ -1,28 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:waie/core/helpers/constants.dart';
+import 'package:waie/core/networking/api_constants.dart';
+import 'package:waie/features/cart/data/model/order_models/sub_order_models/order.dart';
+import 'package:waie/features/cart/data/model/order_models/sub_order_models/transaction.dart';
+import 'package:waie/features/cart/presentation/widgets/order_confirmation_screen.dart';
 
 class OrderDetailsScreen extends StatelessWidget {
-  final List<String> imageList = [
-    "assets/images/Offices.png",
-    "assets/images/Bedrooms.jpg",
-    "assets/images/Kitchens.jpg",
-    "assets/images/living room.png",
-  ];
+  final Order order;
 
-  final List<String> productTitle = [
-    "Office Chair",
-    "Bedroom Set",
-    "Kitchen Cabinets",
-    "Living Room Sofa",
-  ];
-
-  final List<String> prices = ["\$250.00", "\$300.00", "\$450.00", "\$350.00"];
+  OrderDetailsScreen({required this.order});
 
   @override
   Widget build(BuildContext context) {
+    // Extract data from the order
+    final imageList = order.orderItems
+        .map((item) => item.product.images!.isNotEmpty
+            ? (ApiConsts.serverBaseUrl + item.product.images![0].imageUrl!)
+            : "assets/images/waie2.png")
+        .toList();
+    final productTitles = order.orderItems
+        .map((item) => item.product.nameEn ?? "Product")
+        .toList();
+    final prices = order.orderItems
+        .map((item) => "SAR ${item.product.price?.toStringAsFixed(2)}")
+        .toList();
+    final contentDetails = order.orderItems
+        .map((item) =>
+            [item.product.descriptionEn ?? "No description available."])
+        .toList();
+
+    double totalPayment =
+        order.totalPrice + SharedPrefKeys.deliveryFee; 
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Order details"),
+        title: Text("Order Details"),
         centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
@@ -35,334 +48,233 @@ class OrderDetailsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Divider(),
-                SizedBox(height: 10),
+                // Divider(),
+                // Order Header
                 Text(
-                  "Order details",
-                  style: TextStyle(
-                    fontSize: 19,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  "Order #${order.orderId}",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 15),
+                // Delivery Address
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 18),
-                  width: MediaQuery.of(context).size.width,
-                  height: 130,
+                  padding: EdgeInsets.all(16),
+                  width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 4,
-                        spreadRadius: 2,
-                      ),
-                    ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "\nOrder number: 456123567 \nOrder date: 21/08/2024",
+                        order.shippingAddress.streetAddress,
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Text(
+                        "${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.zipCode}",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Text(
+                        order.shippingAddress.country,
                         style: TextStyle(fontSize: 16),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 15),
+                SizedBox(height: 20),
+                // Order Status
                 Text(
-                  "Delivery address",
-                  style: TextStyle(
-                    fontSize: 19,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  "Order Status",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 15),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 18),
-                  width: MediaQuery.of(context).size.width,
-                  height: 150,
+                  padding: EdgeInsets.all(16),
+                  width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 4,
-                        spreadRadius: 2,
-                      ),
-                    ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Saudi Arabia", style: TextStyle(fontSize: 16)),
-                      Text("Qassim", style: TextStyle(fontSize: 16)),
-                      Text("Buraidah", style: TextStyle(fontSize: 16)),
-                      Text("3, Saleh Street", style: TextStyle(fontSize: 16)),
-                      Text("97545", style: TextStyle(fontSize: 16)),
+                      Text(
+                        "Created at: ${_formatDate(order.createdAt)}",
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      SizedBox(height: 6),
+                      Text(
+                        "Order Status: ${_getStatusText(order.status)}",
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      SizedBox(height: 6),
+                      Text(
+                        "Shipping Status: ${_getShippingStatusText(order.shippingStatus)}",
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      SizedBox(height: 6),
+                      Text(
+                        "Payment Status: ${_getTransactionStatus(order.transaction)}",
+                        style: TextStyle(fontSize: 14),
+                      ),
                     ],
                   ),
                 ),
                 SizedBox(height: 20),
-                Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Order",
-                            style: TextStyle(
-                              fontSize: 19,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Text(
-                            "4 items",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ],
+                // Order Items Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Order Items",
+                      style: TextStyle(
+                        fontSize: 19,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ],
-                  ),
+                    ),
+                    Text(
+                      "${order.orderItems.length} items",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 15),
+                // List of Order Items
                 ListView.builder(
-                  itemCount: imageList.length,
+                  itemCount: order.orderItems.length,
                   physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
-                    return Container(
-                      width: double.infinity,
-                      margin: EdgeInsets.only(bottom: 15),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            height: 180,
-                            width: 180,
-                            child: Stack(
-                              children: [
-                                InkWell(
-                                  onTap: () {},
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Image.asset(
-                                      imageList[index],
-                                      width: 180,
-                                      height: 180,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  productTitle[index],
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  child: Text(
-                                    "color: Red",
-                                  ),
-                                ),
-                                SizedBox(height: 2),
-                                SizedBox(
-                                  child: Text(
-                                    "Usage period: 1-3 Years ",
-                                  ),
-                                ),
-                                SizedBox(height: 2),
-                                SizedBox(
-                                  child: Text(
-                                    "Height: 3 Meter",
-                                  ),
-                                ),
-                                SizedBox(height: 2),
-                                SizedBox(
-                                  child: Text(
-                                    "Width: 3.5 Meter",
-                                  ),
-                                ),
-                                SizedBox(height: 2),
-                                SizedBox(
-                                  child: Text(
-                                    "Weight: 5 Kg",
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    SizedBox(height: 10),
-                                    Text(
-                                      prices[index],
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFFDB3022),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                    return ListTile(
+                      leading: Image.network(
+                        imageList[index] ?? "assets/images/waie2.png",
+                        height: 50,
+                        width: 50,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image.asset(
+                            'assets/images/waie2.png',
+                            height: 50,
+                            width: 50,
+                            fit: BoxFit.cover,
+                          );
+                        },
                       ),
+                      title: Text(productTitles[index]),
+                      subtitle: Text(contentDetails[index].join('\n')),
+                      trailing: Text(prices[index]),
                     );
                   },
                 ),
-                SizedBox(height: 100),
-                Divider(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "item 1",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Text(
-                      "SAR 500",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 15),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "item 2",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Text(
-                      "SAR 100",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 15),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "item 3",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Text(
-                      "SAR 20",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 15),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "item 4",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Text(
-                      "SAR 10",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 15),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Delivery",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Text(
-                      "SAR 35",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-                Divider(),
+                SizedBox(height: 20),
+                // Order Summary
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       "Total Payment",
                       style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
+                        fontSize: 19,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
-                      "SAR 655",
+                      "SAR ${totalPayment.toStringAsFixed(2)}",
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: Colors.redAccent,
+                        color: Color.fromRGBO(118, 192, 67, 1),
                       ),
                     ),
                   ],
                 ),
+                SizedBox(height: 20),
+                // Check if the order is unpaid
+                if (order.transaction == null)
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Navigate to the payment confirmation screen with the Order object
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                OrderConfirmationScreen(order: order),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromRGBO(118, 192, 67, 1),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: MediaQuery.of(context).size.width * 0.3,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                      child: Text(
+                        "Pay Now",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'cabin',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+}
+
+String _formatDate(DateTime date) {
+  // Format the date as needed, e.g., DD/MM/YYYY
+  return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
+}
+
+String _getStatusText(int status) {
+  // Map status codes to readable text
+  switch (status) {
+    case 0:
+      return "Processing";
+    case 1:
+      return "Completed";
+    case 2:
+      return "Canceled";
+    default:
+      return "Unknown";
+  }
+}
+
+String _getShippingStatusText(int status) {
+  // Map status codes to readable text
+  switch (status) {
+    case 0:
+      return "Not Shipped yet";
+    case 1:
+      return "In Transit";
+    case 2:
+      return "Out For Delivery";
+    case 3:
+      return "Delivered";
+    case 4:
+      return "Failed Delivery";
+    default:
+      return "Unknown";
+  }
+}
+
+String _getTransactionStatus(Transaction? transt) {
+  // Map status codes to readable text
+  if (transt == null) {
+    return "Not paid yet";
+  } else {
+    return "Paid";
   }
 }

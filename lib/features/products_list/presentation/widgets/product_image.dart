@@ -5,17 +5,18 @@ import 'package:waie/core/shared_models/category_data_model/category_data.dart';
 import 'package:waie/core/theming/colors.dart';
 import 'package:waie/features/products_list/data/model/product_response.dart';
 
+import '../../data/model/product_models/product.dart';
+
 class ProductImage extends StatelessWidget {
-  final int index;
-  final CategoryData categoryData;
+  final CategoryData? categoryData;
   final Product? product;
 
   ProductImage({
     Key? key,
-    required this.index,
     required this.categoryData,
     this.product,
   }) : super(key: key);
+  
 
   @override
   Widget build(BuildContext context) {

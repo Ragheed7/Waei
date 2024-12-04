@@ -36,20 +36,6 @@ Map<String, dynamic> _$ResultToJson(Result instance) => <String, dynamic>{
       'user': instance.user,
     };
 
-UserData _$UserDataFromJson(Map<String, dynamic> json) => UserData(
-      userType: (json['userType'] as num?)?.toInt(),
-      phone: json['mobileNumber'] as String?,
-      userName: json['userName'] as String?,
-      iaActive: json['iaActive'] as bool?,
-    );
-
-Map<String, dynamic> _$UserDataToJson(UserData instance) => <String, dynamic>{
-      'userType': instance.userType,
-      'mobileNumber': instance.phone,
-      'userName': instance.userName,
-      'iaActive': instance.iaActive,
-    };
-
 Token _$TokenFromJson(Map<String, dynamic> json) => Token(
       accessToken: json['accessToken'] as String?,
       refreshToken: json['refreshToken'] as String?,

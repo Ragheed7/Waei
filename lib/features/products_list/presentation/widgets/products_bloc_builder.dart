@@ -2,15 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:waie/core/shared_models/category_data_model/category_data.dart';
 import 'package:waie/core/theming/colors.dart';
-import 'package:waie/features/products_list/data/model/product_response.dart';
 import 'package:waie/features/products_list/logic/cubit/product_cubit.dart';
 import 'package:waie/features/products_list/logic/cubit/product_state.dart';
 import 'package:waie/features/products_list/presentation/widgets/products_list_view.dart';
+import 'package:waie/features/search/presentation/widgets/products_grid_view.dart';
+
+import '../../data/model/product_models/product.dart'; 
 
 class ProductsBlocBuilder extends StatelessWidget {
-  final CategoryData categoryData;
+  final CategoryData? categoryData;
+  final bool grid; 
 
-  const ProductsBlocBuilder({Key? key, required this.categoryData}) : super(key: key);
+  const ProductsBlocBuilder({
+    Key? key,
+    this.categoryData,
+    required this.grid, 
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,20 +25,19 @@ class ProductsBlocBuilder extends StatelessWidget {
       builder: (context, state) {
         return state.when(
           initial: () {
-            // Trigger initial load
-            context.read<ProductCubit>().getProducts(isInitialLoad: true);
+            context.read<ProductCubit>().getProducts(
+                  isInitialLoad: true,
+                  categoryId: categoryData?.categoryId,
+                );
             return setupLoading([]);
           },
           productLoading: (products) {
-            print('State is ProductLoading with ${products?.length} products');
             return setupLoading(products);
           },
           productSuccess: (products) {
-            print('State is ProductSuccess with ${products?.length} products');
             return setupSuccess(products);
           },
           productError: (errorHandler) {
-            print('State is ProductError');
             return setupError();
           },
         );
@@ -41,14 +47,18 @@ class ProductsBlocBuilder extends StatelessWidget {
 
   Widget setupLoading(List<Product?>? list) {
     final products = list?.whereType<Product>().toList() ?? [];
-    print('Products in setupLoading: ${products.length}');
 
     return Stack(
       children: [
-        ProductsListView(
-          products: products,
-          categoryData: categoryData,
-        ),
+        grid
+            ? ProductsGridView(
+                products: products,
+                categoryData: categoryData,
+              )
+            : ProductsListView(
+                products: products,
+                categoryData: categoryData,
+              ),
         Positioned(
           bottom: 16,
           left: 0,
@@ -63,18 +73,26 @@ class ProductsBlocBuilder extends StatelessWidget {
 
   Widget setupSuccess(List<Product?>? list) {
     final products = list?.whereType<Product>().toList() ?? [];
-    print('Products in setupSuccess: ${products.length}');
 
-     if (products.isEmpty) {
-    return Center(
-      child: Text("No products available for this category."),
-    );
-  }
+    if (products.isEmpty) {
+      return Center(
+        child: Text(
+          categoryData == null
+              ? "No products available."
+              : "No products available for ${categoryData!.nameEn}.",
+        ),
+      );
+    }
 
-    return ProductsListView(
-      products: products,
-      categoryData: categoryData,
-    );
+    return grid
+        ? ProductsGridView(
+            products: products,
+            categoryData: categoryData,
+          )
+        : ProductsListView(
+            products: products,
+            categoryData: categoryData,
+          );
   }
 
   Widget setupError() {

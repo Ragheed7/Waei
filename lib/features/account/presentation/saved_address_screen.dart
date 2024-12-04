@@ -1,135 +1,97 @@
 import 'package:flutter/material.dart';
-import 'package:waie/features/account/presentation/add_new_address_screen.dart';
-import 'package:waie/features/account/presentation/edit_address_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:waie/core/shared_models/user_addresses/logic/address_cubit.dart';
+import 'package:waie/core/shared_models/user_addresses/logic/address_state.dart'
+    as address_state;
+import 'package:waie/features/account/presentation/widgets/add_new_address_button_screen.dart';
+import 'package:waie/features/account/presentation/widgets/addreess_card_screen.dart';
+import 'package:waie/features/account/presentation/widgets/app_bar_screen.dart';
+import 'package:waie/core/shared_models/user_addresses/data/model/get_addresses.dart';
+import 'package:waie/features/cart/data/model/selected_address_and_payment/selected_addresses_cubit.dart';
 
 class SavedAddressScreen extends StatelessWidget {
-  const SavedAddressScreen({super.key});
+  const SavedAddressScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final addressCubit = context.read<AddressCubit>()..getAddresses();
+
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text("Saved Address"),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-      ),
+      appBar: AppBarScreen(title: "Saved Addresses"),
       body: SingleChildScrollView(
-        child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Divider(),
-                SizedBox(height: 10),
-                Text(
-                  "Saved Address",
-                  style: TextStyle(
-                    fontSize: 19,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: 15),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 18),
-                  width: MediaQuery.of(context).size.width,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 4,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Saudi Arabia",
-                            style: TextStyle(fontSize: 16),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 600,
+              child: BlocBuilder<AddressCubit,
+                  address_state.AddressState<GetAddresses>>(
+                builder: (context, state) {
+                  return state.maybeWhen(
+                    orElse: () => Center(child: CircularProgressIndicator()),
+                    success: (getAddresses) {
+                      final addresses = getAddresses.result ?? [];
+
+                      if (addresses.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                "assets/images/warning-2.png",
+                                height: 120,
+                                width: 180,
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Text(
+                                'No Addresses found.',
+                                style: TextStyle(fontSize: 20),
+                              ),
+                            ],
                           ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => EditAddressScreen(),
-                                  ));
+                        );
+                      }
+                      return ListView.builder(
+                        padding: EdgeInsets.all(20),
+                        itemCount: addresses.length,
+                        itemBuilder: (context, index) {
+                          final address = addresses[index];
+                          return GestureDetector(
+                            onTap: () {
+                              // Update the SelectedAddressCubit with the chosen address
+                              context
+                                  .read<SelectedAddressCubit>()
+                                  .selectAddress(address);
+                              //  pop the screen to return to CheckOutScreen
+                              Navigator.pop(context);
                             },
-                            child: Text(
-                              "Edit",
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Color(0xFFDB3022),
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 15),
+                              child: AddressCardScreen(
+                                address: address,
+                                counter: index,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        "Qassim",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      Text(
-                        "Buraidah",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      Text(
-                        "3, Saleh Street",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      Text(
-                        "97545",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 100),
-                Center(
-                  child: MaterialButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddNewAddressScreen(),
-                        ),
+                          );
+                        },
                       );
                     },
-                    color: Color.fromRGBO(118, 192, 67, 1),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: MediaQuery.of(context).size.width *0.1,
-                      vertical: 16,
-                    ),
-                    child: Text(
-                      '+ Add new address',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'cabin',
-                        fontSize: 20,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    minWidth: MediaQuery.of(context).size.width *0.8,
-                  ),
-                ),
-                SizedBox(height: 20),
-              ],
+                    addressCreated: (_) {
+                      context.read<AddressCubit>().getAddresses();
+                      return Center(child: CircularProgressIndicator());
+                    },
+                    error: (error) => Center(child: Text('Error: $error')),
+                  );
+                },
+              ),
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: AddNewAddressButtonScreen(),
+            ),
+          ],
         ),
       ),
     );

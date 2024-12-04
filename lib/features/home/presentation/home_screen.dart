@@ -10,13 +10,13 @@ import 'package:waie/features/home/presentation/widgets/left_section_title.dart'
 import 'package:waie/features/home/presentation/widgets/services_horizontal_list_view.dart';
 
 class HomeScreen extends StatelessWidget {
-  List ServicesImgs = [
+  List<String> servicesImgs = [
     "assets/images/Sell.jpg",
     "assets/images/Repair.jpg",
     "assets/images/Donate.jpg",
   ];
 
-  List Services = [
+  List<String> services = [
     "Sell",
     "Repair",
     "Donate",
@@ -30,7 +30,7 @@ class HomeScreen extends StatelessWidget {
         body: SingleChildScrollView(
           child: SafeArea(
             child: Padding(
-              padding: EdgeInsets.only(left: 15, right: 15, top: 20),
+              padding: EdgeInsets.only(left: 16, right: 16, top: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -41,8 +41,8 @@ class HomeScreen extends StatelessWidget {
                   LeftSectionTitle(text: "Request a Service"),
                   verticalSpace(20),
                   ServicesHorizontalListView(
-                    Services: Services,
-                    ServicesImgs: ServicesImgs,
+                    services: services,
+                    servicesImgs: servicesImgs,
                   ),
                   verticalSpace(24),
                   LeftSectionTitle(text: "Top Categories"),

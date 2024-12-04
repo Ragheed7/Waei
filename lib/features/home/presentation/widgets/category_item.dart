@@ -16,7 +16,7 @@ class CategoryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final imageUrl = categoryData.imageUrl != null
         ? ApiConsts.serverBaseUrl + categoryData.imageUrl!
-        : 'assets/images/default_category_image.png';
+        : 'assets/images/waie2.png';
 
     return GestureDetector(
       onTap: () {
@@ -28,13 +28,14 @@ class CategoryItem extends StatelessWidget {
         );
       },
       child: Container(
-        width: 180, // Adjust the width as needed
+        width: 180, 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Image
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
+              // child: Image.network(imageUrl, fit: BoxFit.cover, height: 120, width: 180,)
               child: CachedNetworkImage(
                 imageUrl: imageUrl,
                 width: 180,
@@ -47,7 +48,7 @@ class CategoryItem extends StatelessWidget {
                   child: Icon(Icons.image, color: Colors.grey.shade400),
                 ),
                 errorWidget: (context, url, error) => Image.asset(
-                  'assets/images/default_category_image.png',
+                  'assets/images/waie2.png',
                   width: 180,
                   height: 120,
                   fit: BoxFit.cover,

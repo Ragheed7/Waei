@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:waie/core/shared_models/user_data/user_data.dart';
 part 'login_response.g.dart';
 
 @JsonSerializable()
@@ -19,18 +20,6 @@ class Result {
 
   Result({this.tokens, this.user});
   factory Result.fromJson(Map<String, dynamic> json) => _$ResultFromJson(json);
-}
-
-@JsonSerializable()
-class UserData {
-  int? userType;
-  @JsonKey(name: "mobileNumber")
-  String? phone;
-  String? userName;
-  bool? iaActive;
-  
-  UserData({this.userType, this.phone, this.userName, this.iaActive});
-  factory UserData.fromJson(Map<String, dynamic> json) => _$UserDataFromJson(json);
 }
 
 @JsonSerializable()

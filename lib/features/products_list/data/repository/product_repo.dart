@@ -12,12 +12,32 @@ class ProductRepo {
     required int pageNumber,
     required int pageSize,
     int? categoryId,
+    String? name,
+    double? minPrice,
+    double? maxPrice,
+    int? color,
+    int? brandId,
+    int? styleId,
+    int? materialId,
+    int? productStatus,
+    String? sortBy,
+    bool? isDescending,
   }) async {
     try {
       final response = await _apiService.getProduct(
         pageNumber: pageNumber,
         pageSize: pageSize,
         categoryId: categoryId,
+        name: name,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+        color: color,
+        brandId: brandId,
+        styleId: styleId,
+        materialId: materialId,
+        productStatus: productStatus,
+        sortBy: sortBy,
+        isDescending: isDescending,
       );
       return ApiResult.success(response);
     } catch (error) {

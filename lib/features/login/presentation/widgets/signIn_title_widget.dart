@@ -10,7 +10,7 @@ class SignInTitleWidget extends StatelessWidget {
       padding: const EdgeInsets.only(left: 30),
       alignment: Alignment.topLeft,
       child: Text(
-        'Sign In',
+        'Register',
         style: TextStyle(
           fontFamily: 'cabin',
           fontSize: 32,

@@ -1,8 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:waie/core/networking/api_constants.dart'; // Import your API constants
+import 'package:waie/core/networking/api_constants.dart'; 
 import 'package:waie/core/theming/colors.dart';
+import 'package:waie/features/products_list/data/model/product_models/image_data.dart';
+import 'package:waie/features/products_list/data/model/product_models/product.dart';
 import 'package:waie/features/products_list/data/model/product_response.dart';
 
 class ImagesSlider extends StatefulWidget {
@@ -33,7 +35,7 @@ class _ImagesSliderState extends State<ImagesSlider> {
               // Access the imageUrl property
               String? imageUrl = imageData.imageUrl != null
                   ? ApiConsts.serverBaseUrl + imageData.imageUrl!
-                  : 'assets/images/Kitchens.jpg';
+                  : 'assets/images/Kitchens.jpg'; 
 
               return Builder(
                 builder: (BuildContext context) {

@@ -19,6 +19,7 @@ class BottomTextButtonsWidget extends StatelessWidget {
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
                   'Having issue? ',
@@ -41,34 +42,34 @@ class BottomTextButtonsWidget extends StatelessWidget {
               ],
             ),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pushReplacementNamed(Routes.signupScreen);
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Don\'t have an account? ',
-                  style: TextStyle(
-                    fontFamily: 'cabin',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    color: ColorsManager.secondaryGrey,
-                  ),
-                ),
-                Text(
-                  'Register here',
-                  style: TextStyle(
-                    fontFamily: 'cabin',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: ColorsManager.mainGreen,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // TextButton(
+          //   onPressed: () {
+          //     Navigator.of(context).pushReplacementNamed(Routes.signupScreen);
+          //   },
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: [
+          //       Text(
+          //         'Don\'t have an account? ',
+          //         style: TextStyle(
+          //           fontFamily: 'cabin',
+          //           fontSize: 16,
+          //           fontWeight: FontWeight.w400,
+          //           color: ColorsManager.secondaryGrey,
+          //         ),
+          //       ),
+          //       Text(
+          //         'Register here',
+          //         style: TextStyle(
+          //           fontFamily: 'cabin',
+          //           fontSize: 16,
+          //           fontWeight: FontWeight.w500,
+          //           color: ColorsManager.mainGreen,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:waie/core/theming/colors.dart';
 import 'package:waie/features/account/presentation/account_screen.dart';
-import 'package:waie/features/cart/cart_screen.dart';
+import 'package:waie/features/cart/presentation/cart_screen.dart';
+import 'package:waie/features/search/presentation/search_screen.dart';
 import 'package:waie/features/home/presentation/home_screen.dart';
-import 'package:waie/features/search/search_screen.dart';
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({Key? key}) : super(key: key);
@@ -14,9 +14,10 @@ class BottomNavBar extends StatefulWidget {
 
 class _BottomNavBarState extends State<BottomNavBar> {
   int myCurrentIndex = 0;
+
   final List<Widget> pages = [
-    HomeScreen(),
-    SearchScreen(),
+    HomeScreen(), 
+    SearchScreen(), 
     CartScreen(),
     AccountScreen(),
   ];
@@ -65,11 +66,17 @@ class _BottomNavBarState extends State<BottomNavBar> {
                 label: "Home",
               ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.search), label: "Search"),
+                icon: Icon(Icons.search),
+                label: "Search",
+              ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.shopping_cart_outlined), label: "Cart"),
+                icon: Icon(Icons.shopping_cart_outlined),
+                label: "Cart",
+              ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.person), label: "Account"),
+                icon: Icon(Icons.person),
+                label: "Account",
+              ),
             ],
           ),
         ),

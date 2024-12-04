@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:waie/core/shared_models/category_data_model/category_data.dart';
 import 'package:waie/core/theming/colors.dart';
+import 'package:waie/features/products_list/data/model/product_models/product.dart';
 import 'package:waie/features/products_list/data/model/product_response.dart';
 import 'package:waie/features/products_list/presentation/widgets/product_item.dart';
 import 'package:waie/features/product_screen/presentation/ProductScreen.dart';
@@ -9,7 +10,7 @@ import '../../logic/cubit/product_cubit.dart';
 
 class ProductsListView extends StatefulWidget {
   final List<Product> products;
-  final CategoryData categoryData;
+  final CategoryData? categoryData;
 
   ProductsListView({
     Key? key,
@@ -23,7 +24,6 @@ class ProductsListView extends StatefulWidget {
 
 class _ProductsListViewState extends State<ProductsListView> {
   final ScrollController _scrollController = ScrollController();
-  int selectedProductIndex = 0;
 
   @override
   void initState() {
@@ -69,10 +69,9 @@ class _ProductsListViewState extends State<ProductsListView> {
               );
             },
             child: ProductItem(
-              itemIndex: index,
-              selectedIndex: selectedProductIndex,
               product: product,
               categoryData: widget.categoryData,
+              isGrid: false,
             ),
           );
         } else {

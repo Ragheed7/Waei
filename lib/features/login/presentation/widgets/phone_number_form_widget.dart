@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:waie/core/helpers/constants.dart';
 import 'package:waie/core/theming/colors.dart';
 import 'package:waie/features/login/logic/cubit/login_cubit.dart';

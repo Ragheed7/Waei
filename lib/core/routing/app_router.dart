@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:waie/core/di/dependency_injection.dart';
 import 'package:waie/core/routing/routes.dart';
-import 'package:waie/core/shared_models/category_data_model/category_data.dart';
 import 'package:waie/features/OnBoarding/landing_screen.dart';
 import 'package:waie/features/OnBoarding/welcome_screen.dart';
+import 'package:waie/features/account/presentation/myaccount.dart';
 import 'package:waie/features/home/presentation/home_screen.dart';
 import 'package:waie/features/login/logic/cubit/login_cubit.dart';
 import 'package:waie/features/login/presentation/login_screen.dart';
 import 'package:waie/features/otp/otp_screen.dart';
-import 'package:waie/features/products_list/presentation/products_list_screen.dart';
 import 'package:waie/features/signup/signup_screen.dart';
 import 'package:waie/navigation_menu.dart';
 
@@ -54,18 +53,28 @@ class AppRouter {
 
       case Routes.navigationMenu:
         return MaterialPageRoute(
-          builder: (context) => const BottomNavBar(),
-        );
+            builder: (context) => const BottomNavBar());
+
+      case Routes.myAccountScreen:
+        return MaterialPageRoute(
+            builder: (context) => const MyaccountScreen());
+
+      // case Routes.cartScreen:
+      // return MaterialPageRoute(
+      //   builder: (context) => BlocProvider(
+      //     create: (context) => getIt<CartCubit>()..fetchCartItems(),
+      //     child: const CartScreen(),
+      // ));
 
       case Routes.homeScreen:
         return MaterialPageRoute(
           builder: (context) => HomeScreen(),
         );
 
-        // case Routes.productsScreen:
-        // return MaterialPageRoute(
-        //   builder: (context) => ProductsListScreen(),
-        // );
+      // case Routes.productsScreen:
+      // return MaterialPageRoute(
+      //   builder: (context) => ProductsListScreen(),
+      // );
 
       default:
         return null;

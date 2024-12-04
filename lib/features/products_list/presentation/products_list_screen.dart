@@ -29,7 +29,7 @@ class ProductsListScreen extends StatelessWidget {
         body: SafeArea(
           child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: ProductsBlocBuilder(categoryData: categoryData,)),
+              child: ProductsBlocBuilder(categoryData: categoryData, grid: false,)),
         ),
       ),
     );

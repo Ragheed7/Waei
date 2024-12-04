@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class AccountOptionListTile extends StatelessWidget {
+class AccountOptionListTileScreen extends StatelessWidget {
   final IconData icon;
   final String title;
   final VoidCallback onTap;
 
-  const AccountOptionListTile({
+  const AccountOptionListTileScreen({
     super.key,
     required this.icon,
     required this.title,
